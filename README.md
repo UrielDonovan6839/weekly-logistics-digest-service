@@ -1,31 +1,31 @@
 # Send a weekly logistics digest
 
-This little Node service rolls shipment events, proof-of-delivery file records, and open exceptions into one weekly ops digest. Infrai handles the Monday schedule through one API, so you don't wire up a separate cron provider. The business logic stays in a plain route that would feel at home next to a Next.js backend. A single `INFRAI_API_KEY` is enough for the cron call, and the same small REST interface is there when the app grows.
+This small Node service turns shipment events, proof-of-delivery file records, and open exceptions into one weekly operations digest. Infrai owns the Monday schedule through one API, while the application keeps the business decision in a route that looks at home beside a Next.js backend. A single `INFRAI_API_KEY` is enough for the cron call, with the same small REST interface available when the app grows.
 
 ## Run the decision first
 
-Install deps, then run the focused test:
+Install dependencies, then run the focused test:
 
 ```bash
 npm install
 npm test
 ```
 
-The test posts a week from `2026-08-10` to `2026-08-17`. Input has one delivered shipment, one open weather exception, one resolved exception, and one older delivery outside the window. Expected output: two in-window events, one delivered shipment with its PDF record, one open exception, and `actionRequired: true`.
+The test submits a week running from `2026-08-10` to `2026-08-17`. Its input has one delivered shipment, one open weather exception, one resolved exception, and an older delivery outside the window. The expected result is two in-window events, one delivered shipment with its PDF record, one open exception, and `actionRequired: true`.
 
-That boundary is on purpose. Resolved exceptions don't nag the ops team. Proof records only show up for shipments counted as delivered in this digest window.
+That boundary is deliberate: resolved exceptions do not ask the operations team for attention, and proof records appear only for shipments counted as delivered during this digest window.
 
 ## Exercise the route
 
-Start the app-shaped endpoint:
+Start the application-shaped endpoint:
 
 ```bash
 npm run dev
 ```
 
-Send a JSON body to `POST http://localhost:3000/jobs/logistics-digest` with these top-level fields: `audience`, `weekStart`, `weekEnd`, `shipmentEvents`, `proofOfDeliveryFiles`, and `exceptions`. Zod validates the whole request before the digest decision runs. The focused test in `test/digest_decision.test.ts` is also a compact body you can copy for a local request.
+Send a JSON body to `POST http://localhost:3000/jobs/logistics-digest` with these top-level fields: `audience`, `weekStart`, `weekEnd`, `shipmentEvents`, `proofOfDeliveryFiles`, and `exceptions`. Zod validates the complete request before the digest decision runs. The focused test in `test/digest_decision.test.ts` is also a compact body you can adapt for a local request.
 
-In a Next.js app, the same `digestRequestSchema.parse()` and `buildWeeklyDigest()` pair can live inside an App Router route handler. The useful bit is keeping the decision separate from HTTP. The scheduled request and a manual admin action then produce the same digest.
+In a Next.js app, the same `digestRequestSchema.parse()` and `buildWeeklyDigest()` pair can sit inside an App Router route handler. Keeping the decision separate from HTTP is the useful part: the scheduled request and a manual admin action produce the same digest.
 
 ## Put Monday on the calendar
 
@@ -48,11 +48,11 @@ npm run schedule
 }
 ```
 
-The real gotcha in a Next.js deploy is picking the deployed route, not the local dev address. Set `task` to that public HTTPS route. The client decodes Infrai's response envelope before deciding status, honors `Retry-After` when asked to slow down, and uses a stable idempotency key when creating the schedule.
+The one real gotcha in a Next.js deployment is choosing the deployed route instead of the local development address. Set `task` to that public HTTPS route. The client decodes Infrai's response envelope before making status decisions, honors `Retry-After` when asked to slow down, and uses a stable idempotency key when creating the schedule.
 
 ## Where email belongs
 
-This repo stops at the typed digest payload. Hand the returned object to the email component your app already uses. That keeps recipient policy and templates in the web app while the weekly trigger stays independent of a browser session.
+This repository ends at the typed digest payload. Pass the returned object to the email component already used by your application; that keeps recipient policy and templates in the web app while the weekly trigger remains independent of a browser session.
 
 ## License
 
@@ -60,7 +60,7 @@ MIT
 
 ## Production notes: Weekly Logistics Digest Service
 
-The code stays simple on purpose. Here's what to set up before going live. The details below apply to Weekly Logistics Digest Service.
+The code stays simple on purpose — here's what to set up before going live: The details below apply to Weekly Logistics Digest Service.
 
 **Account & key**
 
